@@ -1,0 +1,12 @@
+version : "3"
+
+services:
+  nextjs:
+    container_name: "AppYetis"
+    image: react
+    restart: always
+    environment:
+      NODE_ENV: docker
+    build: .
+    ports:
+      - "3000:3000"
