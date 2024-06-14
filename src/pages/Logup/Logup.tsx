@@ -5,12 +5,13 @@ import './Logup.css';
 import { MapContainer as LeafletMap, Marker, Popup, TileLayer } from "react-leaflet";
 import { Icon } from 'leaflet';
 import locationPng from "../../images/location.png";
-import { registerUser } from '../../services/userServices';
+import { getMyIp, registerUser } from '../../services/userServices';
+import { getLocationFromString } from '../../utils/globalFuncs';
 
 interface LogupProps {}
 
 const Logup: React.FC<LogupProps> = () => {
-    const [selectedLoc, setLoc] = useState<number[]>([41.015137, 28.979530]);
+    const [selectedLoc, setLoc] = useState<number[] | null>();
     const markerRef = useRef<any>(null);
     const navigate = useNavigate();
     const [api, contextHolder] = notification.useNotification();
@@ -23,7 +24,18 @@ const Logup: React.FC<LogupProps> = () => {
         });
       }, [api]);
 
-
+    useEffect(() => {
+        const fetchData = async () => {
+            const ipReq = await getMyIp();
+            if (ipReq.status == 200){
+                const loc = ipReq.data.latitude+','+ipReq.data.longitude;
+                setLoc(getLocationFromString(loc));
+                return;
+            }
+            openNotification('An error occured when get location!', true);
+        };
+        fetchData();
+    }, []);
 
     const onFinish = async (values: any) => {
         console.log(values)
@@ -32,7 +44,8 @@ const Logup: React.FC<LogupProps> = () => {
             values.password &&
             values.passwordAgain &&
             values.password === values.passwordAgain &&
-            values.mail) {
+            values.mail && 
+            selectedLoc) {
                 console.log ('trying');
                 const state = await registerUser(values.username, values.mail, values.password, 2, values.name, selectedLoc[0].toString() + ',' + selectedLoc[1].toString())
                 if (state.status === 200)
@@ -123,6 +136,7 @@ const Logup: React.FC<LogupProps> = () => {
                 <Form.Item<FieldType>
                     label="Location"
                 >
+                {selectedLoc && 
                     <LeafletMap
                     center={[selectedLoc[0],selectedLoc[1]]}
                     zoom={16}
@@ -151,7 +165,7 @@ const Logup: React.FC<LogupProps> = () => {
                         </Popup>
 
                     </Marker>
-                </LeafletMap>
+                </LeafletMap>}
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }} style={{ display: 'flex', justifyContent: 'end', flexDirection: 'column'}}>
                     <Button type='link' onClick={() => navigate('/login')}>Log in</Button>

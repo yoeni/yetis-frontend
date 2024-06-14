@@ -1,5 +1,5 @@
 import { UserType } from '../reducer';
-import { SendDelete, SendGet, SendPost, SendPut } from '../utils/request';
+import { SendDelete, SendGet, SendGetCustom, SendPost, SendPut } from '../utils/request';
 
 export const registerUser = async (username: string, email: string, password: string,userType: number, name:string, location: string) => {
     return await SendPost(
@@ -19,6 +19,9 @@ export const getUsersByType = async (type: UserType, token: string) => {
         'users/type/'+type,
         token
     );
+}
+export const getMyIp = async () => {
+    return await SendGetCustom('https://ipapi.co/json/');
 }
 export const getUserById = async (id: string, token: string) =>{
     return await SendGet(

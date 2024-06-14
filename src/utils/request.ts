@@ -70,7 +70,20 @@ export const SendDelete = async (page: string, data: any, token: string | undefi
         return { status: 404 };
     }
 };
-
+export const SendGetCustom = async (url: string) => {
+    let headers: any = { 'Content-Type': 'application/json' };
+    try {
+        const response = await axios({
+            method: 'get',
+            headers: headers,
+            url: url,
+        });
+        return { data: response.data, headers: response.headers, status: response.status };
+    } catch (error: any) {
+        console.error(error);
+        return { status: 404 };
+    }
+};
 export const SendAuth = async () => {
     const headers =  { 
         'Content-Type': 'application/json', 
